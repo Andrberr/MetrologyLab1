@@ -59,9 +59,12 @@ class MainActivity : AppCompatActivity() {
             operators = solution(correctInput)
             var operatorsOutput = ""
             for (operator in operators) {
-                operatorsOutput += operator.key + " -> " + operator.value + "\n"
+                var key = operator.key
+                if (key == "(") key = "()"
+                else if (key == "[") key = "[]"
+                operatorsOutput += key + " -> " + operator.value + "\n"
             }
-            solutionView.text = operators.size.toString()
+            solutionView.text = operatorsOutput
         }
     }
 

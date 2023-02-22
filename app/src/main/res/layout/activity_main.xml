@@ -32,8 +32,8 @@
 
     <TextView
         android:id="@+id/solutionView"
-        android:layout_width="255dp"
-        android:layout_height="143dp"
+        android:layout_width="260dp"
+        android:layout_height="445dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
