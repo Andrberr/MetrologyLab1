@@ -31,15 +31,14 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val shortOperators = arrayOf(
-        "+", "–", "*", "/", "%", "", "<", ">", "=", "+=", "-=",
+        "+", "–", "*", "/", "%", "**", "<", ">", "=", "+=", "-=",
         "*=", "/=", "%=", "=", "(", "<=", ">=", "!=", "==",
         "<=>", "===", "||",
         "!", "?:", "..", "...", "&", "|", "^", "<<", ">>", "[",
         "::"
     )
 
-    private val operators: Array<String> = arrayOf()
-    private val operands: Array<String> = arrayOf()
+    private val operands: Map<String, Int> = mapOf()
     private var uniqueOperatorsAmount: Int = 0
     private var uniqueOperandsAmount: Int = 0
     private var operatorsAmount: Int = 0
@@ -49,13 +48,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        var operators: Map<String, Int>
+
         val solutionView = findViewById<TextView>(R.id.solutionView)
         val inputView = findViewById<EditText>(R.id.inputView)
         findViewById<Button>(R.id.button).setOnClickListener {
             val input = inputView.text.toString()
             val correctInput = getCorrectInput(input)
-            solution(correctInput)
-            solutionView.text = uniqueOperatorsAmount.toString()
+
+            operators = solution(correctInput)
+            var operatorsOutput = ""
+            for (operator in operators) {
+                operatorsOutput += operator.key + " -> " + operator.value + "\n"
+            }
+            solutionView.text = operators.size.toString()
         }
     }
 
@@ -81,37 +87,57 @@ class MainActivity : AppCompatActivity() {
         return map
     }
 
-    private fun solution(input: Array<String>) {
+    private fun solution(input: Array<String>): Map<String, Int> {
         var operatorsMap: MutableMap<String, Int> = mutableMapOf()
+        val ahead = 2
         for (i in input.indices) {
             var j = 0
             while (j < input[i].length) {
                 var k = j
                 var word = ""
-                var shortWord = ""
                 while (k < input[i].length && input[i][k] != ' ') {
-                    shortWord += input[i][k]
-                    var index = shortOperators.indexOf(shortWord)
-                    if (index != -1) operatorsMap = addElementToMap(operatorsMap, shortOperators[index])
-                    else {
-                        index = shortOperators.indexOf(input[i][k].toString())
-                        if (index != -1) operatorsMap = addElementToMap(operatorsMap, shortOperators[index])
-                    }
-
                     word += input[i][k]
-                    operatorsMap = findOperator(word, operatorsMap)
-                    k++
+
+                    var shortWord = ""
+                    var isFound = false
+                    if (k + ahead < input[i].length) {
+                        shortWord =
+                            input[i][k].toString() + input[i][k + 1].toString() + input[i][k + 2].toString()
+                        if (shortOperators.indexOf(shortWord) != -1) {
+                            operatorsMap = addElementToMap(operatorsMap, shortWord)
+                            k += 3
+                            isFound = true
+                        }
+                    }
+                    if (!isFound && k + ahead - 1 < input[i].length) {
+                        shortWord = input[i][k].toString() + input[i][k + 1].toString()
+                        if (shortOperators.indexOf(shortWord) != -1) {
+                            operatorsMap = addElementToMap(operatorsMap, shortWord)
+                            k += 2
+                            isFound = true
+                        }
+                    }
+                    if (!isFound) {
+                        shortWord = input[i][k].toString()
+                        operatorsMap = if (shortOperators.indexOf(shortWord) != -1) addElementToMap(
+                            operatorsMap,
+                            shortWord
+                        )
+                        else findOperator(operatorsMap, word)
+                        k++
+                    }
                 }
                 if (j == k) j++
                 else j = k
             }
         }
-        uniqueOperatorsAmount = operatorsMap.size
+        return operatorsMap
     }
 
+
     private fun findOperator(
-        word: String,
-        operatorsMap: MutableMap<String, Int>
+        operatorsMap: MutableMap<String, Int>,
+        word: String
     ): MutableMap<String, Int> {
         var operator = ""
         for (elem in rubyOperators) {
