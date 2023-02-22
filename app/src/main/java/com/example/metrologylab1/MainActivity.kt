@@ -1,39 +1,62 @@
 package com.example.metrologylab1
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.EditText
-import java.util.*
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
     private val rubyOperators = arrayOf(
+        ".eql?(",
+        "equal?",
+        "and",
+        "not",
+        "or",
+        "defined?",
+        "return",
+        "break",
+        "next",
+        "case when else end",
+        "if elsif else",
+        "loop do end",
+        "while end",
+        "for in do end",
+        "until do end",
+        "print",
+        "puts",
+        "putc",
+        "gets"
+    )
+
+    private val shortOperators = arrayOf(
         "+", "–", "*", "/", "%", "", "<", ">", "=", "+=", "-=",
         "*=", "/=", "%=", "=", "(", "<=", ">=", "!=", "==",
-        "<=>", "===", ".eql?(", "equal?", "and", "not", "or", "||",
+        "<=>", "===", "||",
         "!", "?:", "..", "...", "&", "|", "^", "<<", ">>", "[",
-        "::", "defined?", "return", "break", "next", "case when else end",
-        "if elsif else", "loop do end", "while end", "for in do end",
-        "until do end", "print", "puts", "putc", "gets"
+        "::"
     )
 
     private val operators: Array<String> = arrayOf()
     private val operands: Array<String> = arrayOf()
-    private val uniqueOperatorsAmount: Int = 0
-    private val uniqueOperandsAmount: Int = 0
-    private val operatorsAmount: Int = 0
-    private val operandsAmount: Int = 0
+    private var uniqueOperatorsAmount: Int = 0
+    private var uniqueOperandsAmount: Int = 0
+    private var operatorsAmount: Int = 0
+    private var operandsAmount: Int = 0
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val solutionView = findViewById<TextView>(R.id.solutionView)
         val inputView = findViewById<EditText>(R.id.inputView)
-        val input = inputView.text.toString()
-        val correctInput = getCorrectInput(input)
-
+        findViewById<Button>(R.id.button).setOnClickListener {
+            val input = inputView.text.toString()
+            val correctInput = getCorrectInput(input)
+            solution(correctInput)
+            solutionView.text = uniqueOperatorsAmount.toString()
+        }
     }
 
     private fun getCorrectInput(input: String): Array<String> {
@@ -48,27 +71,48 @@ class MainActivity : AppCompatActivity() {
         return correctInput.toTypedArray()
     }
 
+    private fun addElementToMap(
+        map: MutableMap<String, Int>,
+        element: String
+    ): MutableMap<String, Int> {
+        if (map[element] != null) map[element] =
+            map[element]?.plus(1) ?: 0
+        else map[element] = 1
+        return map
+    }
+
     private fun solution(input: Array<String>) {
-        val operatorsMap: MutableMap<String, Int> = mutableMapOf()
+        var operatorsMap: MutableMap<String, Int> = mutableMapOf()
         for (i in input.indices) {
             var j = 0
             while (j < input[i].length) {
                 var k = j
                 var word = ""
-                while (input[i][k] != ' ' && k < input[i].length) {
+                var shortWord = ""
+                while (k < input[i].length && input[i][k] != ' ') {
+                    shortWord += input[i][k]
+                    var index = shortOperators.indexOf(shortWord)
+                    if (index != -1) operatorsMap = addElementToMap(operatorsMap, shortOperators[index])
+                    else {
+                        index = shortOperators.indexOf(input[i][k].toString())
+                        if (index != -1) operatorsMap = addElementToMap(operatorsMap, shortOperators[index])
+                    }
+
                     word += input[i][k]
+                    operatorsMap = findOperator(word, operatorsMap)
                     k++
-                    TODO()
                 }
-                j = k
+                if (j == k) j++
+                else j = k
             }
         }
+        uniqueOperatorsAmount = operatorsMap.size
     }
 
     private fun findOperator(
         word: String,
         operatorsMap: MutableMap<String, Int>
-    ): Map<String, Int> {
+    ): MutableMap<String, Int> {
         var operator = ""
         for (elem in rubyOperators) {
             operator = if (elem.contains(' ')) elem.substring(0, elem.indexOf(' '))
