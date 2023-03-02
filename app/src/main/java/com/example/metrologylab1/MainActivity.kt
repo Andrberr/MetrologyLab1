@@ -2,9 +2,9 @@ package com.example.metrologylab1
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
+import java.io.IOException
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         "break",
         "next",
         "case when else end",
-        "if elsif else",
+        "if elsif else end",
         "unless else end",
         "loop do end",
         "while do end",
@@ -82,7 +82,9 @@ class MainActivity : AppCompatActivity() {
             clean()
             val input = inputView.text.toString()
             val correctInput = getCorrectInput(input)
-
+            for (str in correctInput){
+                println(str)
+            }
             solution(correctInput)
             var output = ""
             for (operator in operatorsMap) {
@@ -106,6 +108,10 @@ class MainActivity : AppCompatActivity() {
                 number++
             }
             solutionView.text = output
+        }
+
+        findViewById<ImageButton>(R.id.fileButton).setOnClickListener {
+            readFromFile("source.txt", inputView)
         }
     }
 
@@ -240,5 +246,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return contains
+    }
+
+    private fun readFromFile(file: String, view: EditText) {
+        val myInputStream: InputStream
+        val output: String
+        try {
+            myInputStream = assets.open(file)
+            val size: Int = myInputStream.available()
+            val buffer = ByteArray(size)
+            myInputStream.read(buffer)
+            output = String(buffer)
+            view.setText(output)
+        } catch (e: IOException) {
+            Toast.makeText(this, "Файл не найден!!!", Toast.LENGTH_LONG).show()
+        }
     }
 }
