@@ -82,11 +82,14 @@ class MainActivity : AppCompatActivity() {
             clean()
             val input = inputView.text.toString()
             val correctInput = getCorrectInput(input)
-            for (str in correctInput){
+            for (str in correctInput) {
                 println(str)
             }
             solution(correctInput)
             var output = ""
+            output += "Операторы:\n"
+            var number = 1
+            var sumValue = 0
             for (operator in operatorsMap) {
                 var key = operator.key
                 var value = operator.value
@@ -99,19 +102,22 @@ class MainActivity : AppCompatActivity() {
                         value /= 2
                     }
                 }
-                output += "   $key -> $value\n"
+                sumValue += value
+                output += "   $number    ->       $key  ->  $value\n"
+                number++
             }
+            output += "  n1 = ${operatorsMap.size}               N1 = $sumValue \n"
 
-            var number = 1
+            number = 1
+            sumValue = 0
+            output += "Операнды:\n"
             for (operand in operandsMap) {
                 output += "   " + number.toString() + "    ->    " + operand.key + "    ->   " + operand.value + "\n"
                 number++
+                sumValue += operand.value
             }
+            output += "  n2 = ${operandsMap.size}                 N2 = $sumValue"
             solutionView.text = output
-        }
-
-        findViewById<ImageButton>(R.id.fileButton).setOnClickListener {
-            readFromFile("source.txt", inputView)
         }
     }
 
@@ -217,7 +223,7 @@ class MainActivity : AppCompatActivity() {
                             }
                             if ((!isFound && m == word.length) || isFound) {
                                 if (testWord != "" && !rubyReservedWords.contains(testWord)) {
-                                    addElementToMap(operandsMap, testWord)
+                                    operandsMap = addElementToMap(operandsMap, testWord)
                                     testWord = ""
                                 }
                             }
@@ -246,20 +252,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return contains
-    }
-
-    private fun readFromFile(file: String, view: EditText) {
-        val myInputStream: InputStream
-        val output: String
-        try {
-            myInputStream = assets.open(file)
-            val size: Int = myInputStream.available()
-            val buffer = ByteArray(size)
-            myInputStream.read(buffer)
-            output = String(buffer)
-            view.setText(output)
-        } catch (e: IOException) {
-            Toast.makeText(this, "Файл не найден!!!", Toast.LENGTH_LONG).show()
-        }
     }
 }
