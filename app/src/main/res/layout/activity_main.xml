@@ -24,20 +24,29 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="Find Holsted Metrics"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inputView" />
 
-    <TextView
+    <EditText
         android:id="@+id/solutionView"
-        android:layout_width="260dp"
-        android:layout_height="445dp"
+        android:layout_width="371dp"
+        android:layout_height="427dp"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_edit"
+        android:ellipsize="start"
+        android:gravity="left"
+        android:inputType="textMultiLine|text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.528"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button"
-        app:layout_constraintVertical_bias="0.151" />
+        app:layout_constraintTop_toBottomOf="@id/button"
+        app:layout_constraintVertical_bias="0.023"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

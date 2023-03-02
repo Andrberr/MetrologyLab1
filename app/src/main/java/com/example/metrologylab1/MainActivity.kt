@@ -8,6 +8,13 @@ import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val FUN_WORD = "def"
+        private const val ONE_LINE_COMMENT = "#"
+        private const val BEGIN_MULTI_LINE_COMMENT = "=begin"
+        private const val END_MULTI_LINE_COMMENT = "=end"
+    }
+
     private val rubyOperators = arrayOf(
         ".eql?(",
         "equal?",
@@ -39,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         "*=", "/=", "%=", "=", "(", "<=", ">=", "!=", "==",
         "<=>", "===", "||", "\"",
         "!", "?:", "..", "...", "&", "|", "^", "<<", ">>", "[", "{",
-        "::"
+        "::", ",", "."
     )
 
     private val rubyReservedWords = arrayOf(
@@ -54,9 +61,7 @@ class MainActivity : AppCompatActivity() {
         ')', ']', '}'
     )
 
-    private val oneLineComment = "#"
-    private val beginMultiLineComment = "=begin"
-    private val endMultiLineComment = "=end"
+    private var functions = arrayOf("")
 
     private var uniqueOperatorsAmount: Int = 0
     private var uniqueOperandsAmount: Int = 0
@@ -92,11 +97,13 @@ class MainActivity : AppCompatActivity() {
                         value /= 2
                     }
                 }
-                output += "$key -> $value\n"
+                output += "   $key -> $value\n"
             }
 
+            var number = 1
             for (operand in operandsMap) {
-                output += operand.key + " -> " + operand.value + "\n"
+                output += "   " + number.toString() + "    ->    " + operand.key + "    ->   " + operand.value + "\n"
+                number++
             }
             solutionView.text = output
         }
@@ -142,8 +149,8 @@ class MainActivity : AppCompatActivity() {
         var isCommented = false
         for (i in input.indices) {
             if (input[i].isNotEmpty()) {
-                if (input[i].indexOf('#') != -1) input[i] =
-                    input[i].substring(0, input[i].indexOf('#'))
+                if (input[i].indexOf(ONE_LINE_COMMENT) != -1) input[i] =
+                    input[i].substring(0, input[i].indexOf(ONE_LINE_COMMENT))
 
                 var j = 0
                 var comment = ""
@@ -153,11 +160,11 @@ class MainActivity : AppCompatActivity() {
                     l++
                 }
 
-                if (comment == beginMultiLineComment) {
+                if (comment == BEGIN_MULTI_LINE_COMMENT) {
                     j = l
                     isCommented = true
                 }
-                if (comment == endMultiLineComment) isCommented = false
+                if (comment == END_MULTI_LINE_COMMENT) isCommented = false
                 if (isCommented) continue
 
                 while (j < input[i].length) {
@@ -167,7 +174,17 @@ class MainActivity : AppCompatActivity() {
                         word += input[i][k]
                         k++
                     }
-                    if (!findOperator(word)) {
+
+                    if (word == FUN_WORD) {
+                        var funOperator = ""
+                        k++
+                        while (k < input[i].length && input[i][k] != '(' && input[i][k] != ' ') {
+                            funOperator += input[i][k]
+                            k++
+                        }
+                        operatorsMap = addElementToMap(operatorsMap, funOperator)
+
+                    } else if (!findOperator(word)) {
                         var m = 0
                         var testWord = ""
                         while (m < word.length) {
